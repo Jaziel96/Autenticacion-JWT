@@ -4,7 +4,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, TokenBlockedList
 from api.utils import generate_sitemap, APIException
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, JWTManager
 from flask_bcrypt import Bcrypt
 from datetime import date, time, datetime, timezone
 
@@ -12,7 +12,7 @@ api = Blueprint('api', __name__)
 
 app=Flask(__name__)
 bcrypt=Bcrypt(app)
-
+JWT=JWTManager(app)
 
 
 @api.route('/hello', methods=['POST', 'GET'])
@@ -69,9 +69,9 @@ def handle_hello_protected():
         "role":claims["role"],
         "user_email": user.email
     }
-    TokenBlocked = TokenBlockedList.query.filter_by(token=get_jwt()['jti']).first()
-    if isinstance(TokenBlocked, TokenBlockedList):
-        return jsonify(msg="Acceso revocado")
+    #TokenBlocked = TokenBlockedList.query.filter_by(token=get_jwt()['jti']).first()
+    #if isinstance(TokenBlocked, TokenBlockedList):
+    #    return jsonify(msg="Acceso revocado")
 
     return jsonify(user.serialize()), 200
 
@@ -85,3 +85,4 @@ def destroyToken():
     db.session.commit()
 
     return jsonify(msg="Acceso revocado")
+
